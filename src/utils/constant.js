@@ -3,6 +3,11 @@ const BMKG_URL = {
     LATEST_EARTHQUAKE: 'http://data.bmkg.go.id/gempaterkini.xml'
 };
 
+const DATA_SOURCE = {
+    BMKG: 'BMKG'
+};
+
 module.exports = {
-    BMKG_URL
+    BMKG_URL,
+    DATA_SOURCE
 };

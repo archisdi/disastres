@@ -1,33 +1,71 @@
 const moment = require('moment');
+const hash = require('object-hash');
+
+const { DATA_SOURCE } = require('../constant');
+
+const reduceData = data => Object.keys(data).reduce((res, key) => {
+    res[key] = data[key][0];
+    return res;
+}, {});
+
+const getDatetime = (data) => {
+    const hour = data.Jam.split(' ')[0];
+    return moment(`${data.Tanggal} ${hour}+07`, 'DD-MMM-YY HH:mm:ss');
+};
+
+const getAffectedAreas = data => Object.keys(data).reduce((res, key) => {
+    if (key.indexOf('Wilayah') !== -1) {
+        const split = data[key].split(' ');
+        const trans = {
+            area_name: split[3],
+            distance: +split[0]
+        };
+        res.push(trans);
+    }
+    return res;
+}, []);
+
+const getCoordinates = (data) => {
+    const [longitude, latitude] = data.point.coordinates[0].split(',');
+    return {
+        latitude: +latitude,
+        longitude: +longitude
+    };
+};
+
+const getTsunamiCond = data => data.Potensi && data.Potensi.split(' ')[0] !== 'tidak';
+const getMagnitude = data => +data.Magnitude.split(' ')[0];
+const getDepth = data => +data.Kedalaman.split(' ')[0];
 
 exports.normalizeQuake = (data) => {
-    Object.keys(data).forEach((key) => { data[key] = data[key][0]; });
-
-    const hour = data.Jam.split(' ')[0];
-    const occursAt = moment(`${data.Tanggal} ${hour}+07`, 'DD-MMM-YY HH:mm:ss');
-    const affected = Object.keys(data).reduce((res, key) => {
-        if (key.indexOf('Wilayah') !== -1) {
-            const split = data[key].split(' ');
-            const trans = {
-                area_name: split[3],
-                distance: +split[0]
-            };
-            res.push(trans);
-        }
-        return res;
-    }, []);
-    const coor = data.point.coordinates[0].split(',');
-    const tsunami = data.Potensi && data.Potensi.split(' ')[0] !== 'tidak';
-
+    const content = reduceData(data);
+    const { latitude, longitude } = getCoordinates(content);
     return {
-        source: 'bmkg',
-        occurs_at: occursAt,
-        latitude: +coor[1],
-        longitude: +coor[0],
-        magnitude: +data.Magnitude.split(' ')[0],
-        depth: +data.Kedalaman.split(' ')[0],
-        affected,
-        tsunami_potential: tsunami
+        occurs_at: getDatetime(content),
+        latitude,
+        longitude,
+        magnitude: getMagnitude(content),
+        depth: getDepth(content),
+        affected: getAffectedAreas(content),
+        tsunami_potential: getTsunamiCond(content)
+    };
+};
+
+exports.create = (data) => {
+    const content = reduceData(data);
+    const { latitude, longitude } = getCoordinates(content);
+    const payload = {
+        source: DATA_SOURCE.BMKG,
+        occurs_at: getDatetime(content),
+        latitude,
+        longitude,
+        magnitude: getMagnitude(content),
+        depth: getDepth(content)
+    };
+    const checksum = hash(payload);
+    return {
+        ...payload,
+        checksum
     };
 };
 

@@ -43,11 +43,6 @@ module.exports = DataTypes => ({
         field: 'depth',
         allowNull: false
     },
-    tsunami_potential: {
-        type: DataTypes.BOOLEAN,
-        field: 'tsunami_potential',
-        defaultValue: false
-    },
     checksum: {
         type: DataTypes.STRING,
         field: 'checksum',
