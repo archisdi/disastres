@@ -7,6 +7,7 @@ const { HttpResponse } = require('../utils/helpers');
 const BMKG = require('../repositories/bmkg_repo');
 const Trans = require('../utils/transformers/bmkg_transformer');
 const EarthquakeRepo = require('../repositories/earthquake_repo');
+const { notifyQuake: notify } = require('../utils/notification');
 
 const reSeedData = async () => {
     const { data } = await BMKG.getLatestEarthquake();
@@ -21,11 +22,11 @@ exports.callback = async (req, res, next) => {
         const { data } = await BMKG.getLastEarthquake();
         const parsed = await parseString(data);
 
-        const { checksum } = Trans.create(parsed.Infogempa.gempa[0]);
-        const check = await EarthquakeRepo.findOne({ checksum });
-        if (!check) {
+        const transformed = Trans.create(parsed.Infogempa.gempa[0]);
+        const check = await EarthquakeRepo.findOne({ checksum: transformed.checksum });
+        if (check) {
             await reSeedData();
-            // notify slack
+            await notify(transformed);
         }
 
         return HttpResponse(res, 'callback called');

@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 
 const httpError = require('./utils/http_error');
+const slack = require('./utils/slack');
 // const mongodb = require('./models/mongodb');
 
 const apiGuard = require('./middlewares/request-handler/api_guard');
@@ -16,6 +17,7 @@ const app = express();
 
 /** Initialize Singletons */
 httpError.initialize();
+slack.initialize();
 // mongodb.initialize();
 /** */
 
