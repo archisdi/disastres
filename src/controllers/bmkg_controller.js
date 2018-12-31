@@ -24,7 +24,7 @@ exports.callback = async (req, res, next) => {
 
         const transformed = Trans.create(parsed.Infogempa.gempa[0]);
         const check = await EarthquakeRepo.findOne({ checksum: transformed.checksum });
-        if (check) {
+        if (!check) {
             await reSeedData();
             await notify(transformed);
         }
