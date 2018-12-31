@@ -4,7 +4,7 @@ exports.normalizeQuake = (data) => {
     Object.keys(data).forEach((key) => { data[key] = data[key][0]; });
 
     const hour = data.Jam.split(' ')[0];
-    const datetime = moment(`${data.Tanggal} ${hour}+07`, 'DD-MMM-YY HH:mm:ss');
+    const occursAt = moment(`${data.Tanggal} ${hour}+07`, 'DD-MMM-YY HH:mm:ss');
     const affected = Object.keys(data).reduce((res, key) => {
         if (key.indexOf('Wilayah') !== -1) {
             const split = data[key].split(' ');
@@ -20,7 +20,8 @@ exports.normalizeQuake = (data) => {
     const tsunami = data.Potensi && data.Potensi.split(' ')[0] !== 'tidak';
 
     return {
-        datetime,
+        source: 'bmkg',
+        occurs_at: occursAt,
         latitude: +coor[1],
         longitude: +coor[0],
         magnitude: +data.Magnitude.split(' ')[0],

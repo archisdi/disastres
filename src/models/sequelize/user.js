@@ -4,7 +4,8 @@ const UserSchema = require('./scheme/user_scheme');
 
 module.exports = function (sequelize, DataTypes) {
     const Member = sequelize.define('User', UserSchema(DataTypes), {
-        tableName: 'users'
+        tableName: 'users',
+        underscored: true
     });
 
     Member.associate = (models) => {
