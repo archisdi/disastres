@@ -33,7 +33,7 @@ exports.notifyQuake = async ({
             ts: moment().unix()
         }]
     }, () => {
-        console.log('message sent');
+        console.log('message sent'); // eslint-disable-line
     });
 };
 
