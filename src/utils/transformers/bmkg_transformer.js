@@ -9,7 +9,7 @@ const reduceData = data => Object.keys(data).reduce((res, key) => {
 }, {});
 
 const getDatetime = (data) => {
-    const hour = data.Jam.split(' ')[0];
+    const [hour] = data.Jam.split(' ');
     return moment(`${data.Tanggal} ${hour}`, 'DD-MMM-YY HH:mm:ss').tz(TZ.WIB);
 };
 
@@ -40,9 +40,8 @@ const getDepth = data => +data.Kedalaman.split(' ')[0];
 exports.normalizeQuake = (data) => {
     const content = reduceData(data);
     const { latitude, longitude } = getCoordinates(content);
-    const date = getDatetime(content);
     return {
-        occurs_at: date.utc(),
+        occurs_at: getDatetime(content),
         latitude,
         longitude,
         magnitude: getMagnitude(content),
@@ -55,10 +54,9 @@ exports.normalizeQuake = (data) => {
 exports.create = (data) => {
     const content = reduceData(data);
     const { latitude, longitude } = getCoordinates(content);
-    const date = getDatetime(content);
     const payload = {
         source: DATA_SOURCE.BMKG,
-        occurs_at: date.utc(),
+        occurs_at: getDatetime(content),
         latitude,
         longitude,
         magnitude: getMagnitude(content),
