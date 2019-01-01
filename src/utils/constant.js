@@ -8,7 +8,7 @@ const DATA_SOURCE = {
 };
 
 const TIMEZONE = {
-    WIB: 'America/New_York'
+    WIB: 'Asia/Jakarta'
 };
 
 module.exports = {
