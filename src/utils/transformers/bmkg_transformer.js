@@ -40,8 +40,9 @@ const getDepth = data => +data.Kedalaman.split(' ')[0];
 exports.normalizeQuake = (data) => {
     const content = reduceData(data);
     const { latitude, longitude } = getCoordinates(content);
+    const date = getDatetime(content);
     return {
-        occurs_at: getDatetime(content),
+        occurs_at: date.utc(),
         latitude,
         longitude,
         magnitude: getMagnitude(content),
@@ -54,9 +55,10 @@ exports.normalizeQuake = (data) => {
 exports.create = (data) => {
     const content = reduceData(data);
     const { latitude, longitude } = getCoordinates(content);
+    const date = getDatetime(content);
     const payload = {
         source: DATA_SOURCE.BMKG,
-        occurs_at: getDatetime(content),
+        occurs_at: date.utc(),
         latitude,
         longitude,
         magnitude: getMagnitude(content),
