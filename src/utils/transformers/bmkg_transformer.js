@@ -1,7 +1,7 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 const hash = require('object-hash');
 
-const { DATA_SOURCE } = require('../constant');
+const { DATA_SOURCE, TIMEZONE: TZ } = require('../constant');
 
 const reduceData = data => Object.keys(data).reduce((res, key) => {
     res[key] = data[key][0];
@@ -10,7 +10,7 @@ const reduceData = data => Object.keys(data).reduce((res, key) => {
 
 const getDatetime = (data) => {
     const hour = data.Jam.split(' ')[0];
-    return moment(`${data.Tanggal} ${hour}+07`, 'DD-MMM-YY HH:mm:ss');
+    return moment(`${data.Tanggal} ${hour}`, 'DD-MMM-YY HH:mm:ss').tz(TZ.WIB);
 };
 
 const getAffectedAreas = data => Object.keys(data).reduce((res, key) => {

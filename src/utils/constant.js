@@ -7,7 +7,12 @@ const DATA_SOURCE = {
     BMKG: 'BMKG'
 };
 
+const TIMEZONE = {
+    WIB: 'Asia/Jakarta'
+};
+
 module.exports = {
     BMKG_URL,
-    DATA_SOURCE
+    DATA_SOURCE,
+    TIMEZONE
 };
