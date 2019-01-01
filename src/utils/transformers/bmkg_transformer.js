@@ -40,8 +40,10 @@ const getDepth = data => +data.Kedalaman.split(' ')[0];
 exports.normalizeQuake = (data) => {
     const content = reduceData(data);
     const { latitude, longitude } = getCoordinates(content);
+    const date = getDatetime(content);
+    console.log(date);
     return {
-        occurs_at: getDatetime(content),
+        occurs_at: date,
         latitude,
         longitude,
         magnitude: getMagnitude(content),
