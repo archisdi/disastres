@@ -10,7 +10,7 @@ const reduceData = data => Object.keys(data).reduce((res, key) => {
 
 const getDatetime = (data) => {
     const [hour] = data.Jam.split(' ');
-    return moment(`${data.Tanggal} ${hour}`, 'DD-MMM-YY HH:mm:ss').tz(TZ.WIB).format();
+    return moment(`${data.Tanggal} ${hour}`, 'DD-MMM-YY HH:mm:ss').tz(TZ.WIB).utc().format('YYYY-MM-DD HH:mm:ss');
 };
 
 const getAffectedAreas = data => Object.keys(data).reduce((res, key) => {
