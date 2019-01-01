@@ -6,4 +6,6 @@ exports.findAll = (conditions, attributes) => db.Earthquake.findAll({ where: con
 
 exports.create = data => db.Earthquake.create(data);
 
+exports.count = conditions => db.Earthquake.count({ where: conditions });
+
 module.exports = exports;

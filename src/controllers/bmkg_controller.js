@@ -3,7 +3,7 @@
 const Promise = require('bluebird');
 const parseString = Promise.promisify(require('xml2js').parseString);
 
-const { HttpResponse } = require('../utils/helpers');
+const { HttpResponse, removeDuplicates } = require('../utils/helpers');
 const BMKG = require('../repositories/bmkg_repo');
 const Trans = require('../utils/transformers/bmkg_transformer');
 const EarthquakeRepo = require('../repositories/earthquake_repo');
@@ -16,16 +16,20 @@ const reSeedData = async (normalized) => {
 
 exports.callback = async (req, res, next) => {
     try {
-        const [{ data: felt }, { data: latest }] = await Promise.join(await BMKG.getFeltEarthquake(), await BMKG.getLatestEarthquake());
+        const [{ data: felt }, { data: latest }] = await Promise.join(
+            BMKG.getFeltEarthquake(),
+            BMKG.getLatestEarthquake()
+        );
 
         const { Infogempa: { Gempa: feltParsed } } = await parseString(felt);
         const { Infogempa: { gempa: latestParsed } } = await parseString(latest);
 
         const feltTrans = feltParsed.map(Trans.createFelt);
         const latestTrans = latestParsed.map(Trans.createLatest);
+        const payload = removeDuplicates([...feltTrans, ...latestTrans], 'checksum');
 
-        await reSeedData(feltTrans);
-        await reSeedData(latestTrans);
+        const exsist = await EarthquakeRepo.count({ checksum: payload.map(item => item.checksum) });
+        if (payload.length !== exsist) await reSeedData(payload);
 
         return HttpResponse(res, 'callback called');
     } catch (err) {
