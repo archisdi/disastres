@@ -1,6 +1,7 @@
 const BMKG_URL = {
     LAST_EARTHQUAKE: 'http://data.bmkg.go.id/autogempa.xml',
-    LATEST_EARTHQUAKE: 'http://data.bmkg.go.id/gempaterkini.xml'
+    LATEST_EARTHQUAKE: 'http://data.bmkg.go.id/gempaterkini.xml',
+    ALL_EARTHQUAKE: 'http://data.bmkg.go.id/gempadirasakan.xml'
 };
 
 const DATA_SOURCE = {

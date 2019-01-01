@@ -9,25 +9,23 @@ const Trans = require('../utils/transformers/bmkg_transformer');
 const EarthquakeRepo = require('../repositories/earthquake_repo');
 const { notifyQuake: notify } = require('../utils/notification');
 
-const reSeedData = async () => {
-    const { data } = await BMKG.getLatestEarthquake();
-    const parsed = await parseString(data);
-    const normalized = parsed.Infogempa.gempa.map(Trans.create);
+const reSeedData = async (normalized) => {
     await Promise.map(normalized, quake => EarthquakeRepo.findOne({ checksum: quake.checksum })
-        .then(exsist => (exsist ? null : EarthquakeRepo.create(quake))), { concurrency: 10 });
+        .then(exsist => (exsist ? null : Promise.join(EarthquakeRepo.create(quake), notify(quake)))), { concurrency: 10 });
 };
 
 exports.callback = async (req, res, next) => {
     try {
-        const { data } = await BMKG.getLastEarthquake();
-        const parsed = await parseString(data);
+        const [{ data: felt }, { data: latest }] = await Promise.join(await BMKG.getFeltEarthquake(), await BMKG.getLatestEarthquake());
 
-        const transformed = Trans.create(parsed.Infogempa.gempa[0]);
-        const exsist = await EarthquakeRepo.findOne({ checksum: transformed.checksum });
-        if (!exsist) {
-            await reSeedData();
-            await notify(transformed);
-        }
+        const { Infogempa: { Gempa: feltParsed } } = await parseString(felt);
+        const { Infogempa: { gempa: latestParsed } } = await parseString(latest);
+
+        const feltTrans = feltParsed.map(Trans.createFelt);
+        const latestTrans = latestParsed.map(Trans.createLatest);
+
+        await reSeedData(feltTrans);
+        await reSeedData(latestTrans);
 
         return HttpResponse(res, 'callback called');
     } catch (err) {

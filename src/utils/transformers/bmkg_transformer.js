@@ -10,7 +10,12 @@ const reduceData = data => Object.keys(data).reduce((res, key) => {
 
 const getDatetime = (data) => {
     const [hour] = data.Jam.split(' ');
-    return moment(`${data.Tanggal} ${hour}`, 'DD-MMM-YY HH:mm:ss').tz(TZ.WIB).utc().format('YYYY-MM-DD HH:mm:ss');
+    return moment(`${data.Tanggal} ${hour}`, 'DD-MMM-YY HH:mm:ss').tz(TZ.WIB).format('YYYY-MM-DD HH:mm:ss');
+};
+
+const getDatetime2 = (data) => {
+    const [date] = data.Tanggal.split(' ');
+    return moment(date, 'DD/MM/YYYY-HH:mm:ss').tz(TZ.WIB).format('YYYY-MM-DD HH:mm:ss');
 };
 
 const getAffectedAreas = data => Object.keys(data).reduce((res, key) => {
@@ -27,6 +32,14 @@ const getAffectedAreas = data => Object.keys(data).reduce((res, key) => {
 
 const getCoordinates = (data) => {
     const [longitude, latitude] = data.point.coordinates[0].split(',');
+    return {
+        latitude: +latitude,
+        longitude: +longitude
+    };
+};
+
+const getCoordinates2 = (data) => {
+    const [latitude, longitude] = data.point.coordinates[0].split(',');
     return {
         latitude: +latitude,
         longitude: +longitude
@@ -51,12 +64,30 @@ exports.normalizeQuake = (data) => {
     };
 };
 
-exports.create = (data) => {
+exports.createLatest = (data) => {
     const content = reduceData(data);
     const { latitude, longitude } = getCoordinates(content);
     const payload = {
         source: DATA_SOURCE.BMKG,
         occurs_at: getDatetime(content),
+        latitude,
+        longitude,
+        magnitude: getMagnitude(content),
+        depth: getDepth(content)
+    };
+    const checksum = hash(payload);
+    return {
+        ...payload,
+        checksum
+    };
+};
+
+exports.createFelt = (data) => {
+    const content = reduceData(data);
+    const { latitude, longitude } = getCoordinates2(content);
+    const payload = {
+        source: DATA_SOURCE.BMKG,
+        occurs_at: getDatetime2(content),
         latitude,
         longitude,
         magnitude: getMagnitude(content),
