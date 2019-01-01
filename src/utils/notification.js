@@ -26,7 +26,7 @@ exports.notifyQuake = async ({
             },
             {
                 title: 'Occurs',
-                value: moment(occurs).format('DD-MMM-YY HH:mm:ss'),
+                value: moment(occurs).format('DD MMM YY HH:mm'),
                 short: true
             }
             ],

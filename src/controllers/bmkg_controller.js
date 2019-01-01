@@ -11,7 +11,7 @@ const { notifyQuake: notify } = require('../utils/notification');
 
 const reSeedData = async (normalized) => {
     await Promise.map(normalized, quake => EarthquakeRepo.findOne({ checksum: quake.checksum })
-        .then(exsist => (exsist ? null : Promise.join(EarthquakeRepo.create(quake), notify(quake)))), { concurrency: 10 });
+        .then(exsist => (exsist ? null : Promise.join(EarthquakeRepo.create(quake)))), { concurrency: 10 }); // notify(quake);
 };
 
 exports.callback = async (req, res, next) => {
