@@ -37,21 +37,31 @@ exports.callback = async (req, res, next) => {
     }
 };
 
-exports.checkLast = async (req, res, next) => {
+exports.last = async (req, res, next) => {
     try {
         const { data } = await BMKG.getLastEarthquake();
         const parsed = await parseString(data);
-        return HttpResponse(res, 'last earthquake retrieved', Trans.normalizeQuake(parsed.Infogempa.gempa[0]));
+        return HttpResponse(res, 'last earthquake retrieved', Trans.normalizeLatest(parsed.Infogempa.gempa[0]));
     } catch (err) {
         return next(err);
     }
 };
 
-exports.checkLatest = async (req, res, next) => {
+exports.latest = async (req, res, next) => {
     try {
         const { data } = await BMKG.getLatestEarthquake();
         const parsed = await parseString(data);
-        return HttpResponse(res, 'latest earthquake retrieved', parsed.Infogempa.gempa.map(Trans.normalizeQuake));
+        return HttpResponse(res, 'latest earthquake retrieved', parsed.Infogempa.gempa.map(Trans.normalizeLatest));
+    } catch (err) {
+        return next(err);
+    }
+};
+
+exports.felt = async (req, res, next) => {
+    try {
+        const { data } = await BMKG.getFeltEarthquake();
+        const parsed = await parseString(data);
+        return HttpResponse(res, 'felt earthquake retrieved', parsed.Infogempa.Gempa.map(Trans.normalizeFelt));
     } catch (err) {
         return next(err);
     }

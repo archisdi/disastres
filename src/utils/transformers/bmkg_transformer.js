@@ -30,6 +30,8 @@ const getAffectedAreas = data => Object.keys(data).reduce((res, key) => {
     return res;
 }, []);
 
+const getAffectedAreas2 = data => data.Dirasakan;
+
 const getCoordinates = (data) => {
     const [longitude, latitude] = data.point.coordinates[0].split(',');
     return {
@@ -50,7 +52,9 @@ const getTsunamiCond = data => data.Potensi && data.Potensi.split(' ')[0] !== 't
 const getMagnitude = data => +data.Magnitude.split(' ')[0];
 const getDepth = data => +data.Kedalaman.split(' ')[0];
 
-exports.normalizeQuake = (data) => {
+const getDesc = data => data.Keterangan.trim();
+
+exports.normalizeLatest = (data) => {
     const content = reduceData(data);
     const { latitude, longitude } = getCoordinates(content);
     return {
@@ -61,6 +65,20 @@ exports.normalizeQuake = (data) => {
         depth: getDepth(content),
         affected: getAffectedAreas(content),
         tsunami_potential: getTsunamiCond(content)
+    };
+};
+
+exports.normalizeFelt = (data) => {
+    const content = reduceData(data);
+    const { latitude, longitude } = getCoordinates2(content);
+    return {
+        occurs_at: getDatetime2(content),
+        latitude,
+        longitude,
+        magnitude: getMagnitude(content),
+        depth: getDepth(content),
+        // affected: getAffectedAreas2(content),
+        desc: getDesc(content)
     };
 };
 
