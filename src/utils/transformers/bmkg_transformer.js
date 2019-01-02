@@ -30,7 +30,7 @@ const getAffectedAreas = data => Object.keys(data).reduce((res, key) => {
     return res;
 }, []);
 
-const getAffectedAreas2 = data => data.Dirasakan;
+// const getAffectedAreas2 = data => data.Dirasakan;
 
 const getCoordinates = (data) => {
     const [longitude, latitude] = data.point.coordinates[0].split(',');

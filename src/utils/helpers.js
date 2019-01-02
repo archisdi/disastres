@@ -1,3 +1,5 @@
+const lodash = require('lodash');
+
 exports.HttpResponse = (res, message, content = null, status = 200) => res.status(status).json({
     message,
     status,
@@ -19,5 +21,7 @@ exports.removeDuplicates = (arr, prop) => {
     for (const key in obj) newArr.push(obj[key]); // eslint-disable-line
     return newArr;
 };
+
+exports.getArrDiff = (arr1, arr2) => lodash.xor(arr1, arr2);
 
 module.exports = exports;
