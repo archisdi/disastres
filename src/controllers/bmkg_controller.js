@@ -75,4 +75,25 @@ exports.felt = async (req, res, next) => {
     }
 };
 
+const calcOffset = function (page, limit) {
+    const pPage = page ? parseInt(page, 10) : 1;
+    const pLlimit = limit ? parseInt(limit, 10) : 10;
+    let offset = ((pPage - 1) * pLlimit);
+    offset = offset || 0;
+    return offset;
+};
+
+exports.list = async (req, res, next) => {
+    try {
+        const { page, limit } = req.query;
+        const offset = calcOffset(page, limit);
+        const { rows: earthquakes } = await EarthquakeRepo.findAndCountAll({
+            page, limit, offset
+        });
+        return HttpResponse(res, 'earthquake data retrieved', earthquakes);
+    } catch (err) {
+        return next(err);
+    }
+};
+
 module.exports = exports;
