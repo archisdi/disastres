@@ -88,7 +88,7 @@ exports.list = async (req, res, next) => {
         const { page, limit } = req.query;
         const offset = calcOffset(page, limit);
         const { rows: earthquakes } = await EarthquakeRepo.findAndCountAll({
-            page, limit, offset
+            page, limit, offset, order: [['ocurrs_at', 'desc']]
         });
         return HttpResponse(res, 'earthquake data retrieved', earthquakes);
     } catch (err) {
