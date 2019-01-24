@@ -9,9 +9,9 @@ exports.create = data => db.Earthquake.create(data);
 exports.count = conditions => db.Earthquake.count({ where: conditions });
 
 exports.findAndCountAll = ({
-    limit, page, offset, conditions = {}
+    limit, page, offset, conditions = {}, order
 }) => db.Earthquake.findAndCountAll({
-    where: conditions, page, limit, offset
+    where: conditions, page, limit, offset, order
 });
 
 module.exports = exports;
