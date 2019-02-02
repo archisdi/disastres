@@ -8,6 +8,7 @@ const BMKG = require('../repositories/bmkg_repo');
 const Trans = require('../utils/transformers/bmkg_transformer');
 const EarthquakeRepo = require('../repositories/earthquake_repo');
 const { notifyQuake: notify } = require('../utils/notification');
+const geo = require('../utils/geo');
 
 const reSeedData = async (normalized) => {
     await Promise.map(normalized, quake => EarthquakeRepo.findOne({ checksum: quake.checksum })
@@ -49,7 +50,12 @@ exports.last = async (req, res, next) => {
     try {
         const { data } = await BMKG.getLastEarthquake();
         const parsed = await parseString(data);
-        return HttpResponse(res, 'last earthquake retrieved', Trans.normalizeLatest(parsed.Infogempa.gempa[0]));
+        const normalized = Trans.normalizeLatest(parsed.Infogempa.gempa[0]);
+        console.log(`${normalized.latitude},${normalized.longitude}`);
+
+        const location = await geo.reverseGeolocation('-9.765836, 119.781163');
+        console.log(JSON.stringify(location));
+        return HttpResponse(res, 'last earthquake retrieved', normalized);
     } catch (err) {
         return next(err);
     }

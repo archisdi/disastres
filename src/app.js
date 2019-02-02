@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const httpError = require('./utils/http_error');
 const slack = require('./utils/slack');
+const gmaps = require('./utils/gmaps');
 // const mongodb = require('./models/mongodb');
 
 const apiGuard = require('./middlewares/request-handler/api_guard');
@@ -18,6 +19,7 @@ const app = express();
 /** Initialize Singletons */
 httpError.initialize();
 slack.initialize();
+gmaps.initialize();
 // mongodb.initialize();
 /** */
 
