@@ -1,5 +1,6 @@
 'use strict';
 
+const axios = require('axios');
 const Promise = require('bluebird');
 const parseString = Promise.promisify(require('xml2js').parseString);
 
@@ -7,12 +8,21 @@ const { HttpResponse, removeDuplicates, getArrDiff } = require('../utils/helpers
 const BMKG = require('../repositories/bmkg_repo');
 const Trans = require('../utils/transformers/bmkg_transformer');
 const EarthquakeRepo = require('../repositories/earthquake_repo');
+const SubscriberRepo = require('../repositories/subscriber_repo');
 const { notifyQuake: notify } = require('../utils/notification');
-const geo = require('../utils/geo');
+
+const broadcast = async (quake) => {
+    const subs = await SubscriberRepo.findAll({});
+    try {
+        await Promise.map(subs, sub => axios.post(sub.url, quake, { headers: { secret: sub.secret } }), { concurrency: 2 });
+    } catch (err) {
+        console.error(err.message); // eslint-disable-line
+    }
+};
 
 const reSeedData = async (normalized) => {
     await Promise.map(normalized, quake => EarthquakeRepo.findOne({ checksum: quake.checksum })
-        .then(exsist => (exsist ? null : Promise.join(EarthquakeRepo.create(quake), notify(quake)))), { concurrency: 10 });
+        .then(exsist => (exsist ? null : Promise.join(EarthquakeRepo.create(quake), notify(quake), broadcast(quake)))), { concurrency: 5 });
 };
 
 exports.callback = async (req, res, next) => {
@@ -51,10 +61,6 @@ exports.last = async (req, res, next) => {
         const { data } = await BMKG.getLastEarthquake();
         const parsed = await parseString(data);
         const normalized = Trans.normalizeLatest(parsed.Infogempa.gempa[0]);
-        console.log(`${normalized.latitude},${normalized.longitude}`);
-
-        const location = await geo.reverseGeolocation('-9.765836, 119.781163');
-        console.log(JSON.stringify(location));
         return HttpResponse(res, 'last earthquake retrieved', normalized);
     } catch (err) {
         return next(err);
